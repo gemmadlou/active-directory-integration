@@ -18,7 +18,7 @@
 		
 		
 		// form send?
-		if ( is_multisite() && $_POST['action'] == 'update') {
+		if ( is_multisite() && isset($_POST['action']) && $_POST['action'] == 'update') {
 			$this->_save_wpmu_options($_POST);
 		} else {
 			$this->_load_options();
@@ -706,6 +706,7 @@ if ( !is_multisite() ) { ?>
 		</div> <!-- END OF TAB BULK IMPORT -->
 						
 		<!-- TAB: Test -->
+		<?php if ( !is_multisite() ) : ?>
 		<div id="test">
 			<!-- <form onsubmit="return submitTestForm();"> -->
 			<form onsubmit="window.open('','Test','width=450,height=500,left=100,top=200')" action="<?php echo plugins_url( 'test.php' , __FILE__ )?>" method="post" target="Test">
@@ -742,5 +743,6 @@ if ( !is_multisite() ) { ?>
 				</p>
 			</form>				
 		</div> <!-- END OF TAB TEST -->
+		<?php endif; ?>
 	</div>
 </div>
