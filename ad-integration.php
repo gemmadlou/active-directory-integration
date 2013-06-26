@@ -1746,7 +1746,7 @@ class ADIntegrationPlugin {
 	{
 		// Password left unchanged so get it from $db
 		if ($pwd == '') {
-			if (IS_WPMU) { 
+			if ( is_multisite() ) { 
 				$pwd = get_site_option('AD_Integration_syncback_global_pwd');
 			} else {
 				$pwd = get_option('AD_Integration_syncback_global_pwd');
@@ -1780,7 +1780,7 @@ class ADIntegrationPlugin {
 	{
 		// Password left unchanged so get it from $db
 		if ($pwd == '') {
-			if (IS_WPMU) { 
+			if ( is_multisite() ) { 
 				$pwd = get_site_option('AD_Integration_bulkimport_pwd');
 			} else {
 				$pwd = get_option('AD_Integration_bulkimport_pwd');
@@ -2236,7 +2236,7 @@ class ADIntegrationPlugin {
 	 */
 	protected function _save_wpmu_options($arrPost) {
 		
- 		if (IS_WPMU) {
+ 		if ( is_multisite() ) {
 
  			if ( !empty( $arrPost['AD_Integration_additional_user_attributes'] ) )
 			 	update_site_option('AD_Integration_additional_user_attributes', $arrPost['AD_Integration_additional_user_attributes']);
@@ -2247,7 +2247,7 @@ class ADIntegrationPlugin {
 			if ( !empty( $arrPost['AD_Integration_auto_update_user'] ) )
 			 	update_site_option('AD_Integration_auto_update_user', (bool)$arrPost['AD_Integration_auto_update_user']);
 			
-			 	if ( !empty( $arrPost['AD_Integration_auto_update_description'] ) )
+		 	if ( !empty( $arrPost['AD_Integration_auto_update_description'] ) )
 			 	update_site_option('AD_Integration_auto_update_description', (bool)$arrPost['AD_Integration_auto_update_description']);
 			 
 			if ( !empty( $arrPost['AD_Integration_account_suffix'] ) )
