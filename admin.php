@@ -18,7 +18,7 @@
 		
 		
 		// form send?
-		if ( is_multsisite() && $_POST['action'] == 'update') {
+		if ( is_multisite() && $_POST['action'] == 'update') {
 			$this->_save_wpmu_options($_POST);
 		} else {
 			$this->_load_options();
@@ -107,7 +107,7 @@ if ( !is_multisite() ) { ?>
     	<!-- TAB: Server  -->
 
 		<div id="server">
-			<form action="<?php if ( !is_multisite() )echo 'options.php#server'; ?>" method="post">
+			<form action="<?php if ( !is_multisite() ) echo 'options.php#server'; ?>" method="post">
    				<?php settings_fields('ADI-server-settings'); ?>
 				<table class="form-table">
 					<tbody>
