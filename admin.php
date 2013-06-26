@@ -8,7 +8,7 @@
 		//plugins_url('css/adintegration.css', __FILE__ )  ,false, '1.7.1', 'screen');
 
 
-		if (IS_WPMU) {
+		if ( is_multisite() ) {
 			if (!is_super_admin()) {
 				_e('Access denied.', 'ad-integration');
 				$this->_log(ADI_LOG_WARN,'Access to options page denied');
@@ -18,16 +18,10 @@
 		
 		
 		// form send?
-		if (IS_WPMU && $_POST['action'] == 'update') {
+		if ( is_multsisite() && $_POST['action'] == 'update') {
 			$this->_save_wpmu_options($_POST);
 		} else {
 			$this->_load_options();
-		}
-		
-		// Since we have no plugin activation hook for WPMU,
-		// we do it here (everytime the admin/options page is shown).
-		if (IS_WPMU) {
-			$this->activate();
 		}
 
 ?>
@@ -63,17 +57,17 @@
 		var user = encodeURIComponent(document.getElementById('AD_Integration_test_user').value);
 		var password = encodeURIComponent(document.getElementById('AD_Integration_test_password').value);
 
-		TestWindow = window.open("<?php echo ( (IS_WPMU) ? WPMU_PLUGIN_URL : WP_PLUGIN_URL ).'/'.ADINTEGRATION_FOLDER;?>/test.php?user=" + user + "&password=" + password, "Test", "width=450,height=500,left=100,top=200");
+		TestWindow = window.open("<?php echo plugins_url().'/'.ADINTEGRATION_FOLDER; ?>/test.php?user=" + user + "&password=" + password, "Test", "width=450,height=500,left=100,top=200");
 		TestWindow.focus();
 	}
 </script>
 
-<div class="wrap" style="background-image: url('<?php if (IS_WPMU) { echo WPMU_PLUGIN_URL; } else { echo WP_PLUGIN_URL; } echo '/'.basename(dirname(__FILE__)); ?>/ad-integration.png'); background-repeat: no-repeat; background-position: right 100px;">
+<div class="wrap" style="background-image: url('<?php echo plugins_url('ad-integration.png', __FILE__ ); ?>); background-repeat: no-repeat; background-position: right 100px;">
 
 	<div id="icon-options-general" class="icon32">
 		<br/>
 	</div>
-	<h2><?php if (IS_WPMU) { 
+	<h2><?php if ( is_multisite() ) { 
   	_e('Active Directory Integration', 'ad-integration');
   } else {
   	_e('Active Directory Integration Settings', 'ad-integration');
@@ -105,7 +99,7 @@
 <?php 
 
 // Test Tool not for WordPress MU 
-if (!IS_WPMU) { ?>		
+if ( !is_multisite() ) { ?>		
 			<li><a href="#test"><?php _e('Test Tool', 'ad-integration'); ?></a></li>
 <?php } ?>			
 		</ul>	
@@ -113,7 +107,7 @@ if (!IS_WPMU) { ?>
     	<!-- TAB: Server  -->
 
 		<div id="server">
-			<form action="<?php if (!IS_WPMU)echo 'options.php#server'; ?>" method="post">
+			<form action="<?php if ( !is_multisite() )echo 'options.php#server'; ?>" method="post">
    				<?php settings_fields('ADI-server-settings'); ?>
 				<table class="form-table">
 					<tbody>
@@ -176,7 +170,7 @@ if (!IS_WPMU) { ?>
 
 		<div id="user">
 		
-			<form action="<?php if (!IS_WPMU)echo 'options.php#user'; ?>" method="post">
+			<form action="<?php if ( !is_multisite() )echo 'options.php#user'; ?>" method="post">
    				<?php settings_fields('ADI-user-settings'); ?>
 				<table class="form-table">
 					<tbody>
@@ -344,7 +338,7 @@ if (!IS_WPMU) { ?>
 		<!-- TAB: Authorization -->
 		
 		<div id="authorization">
-			<form action="<?php if (!IS_WPMU)echo 'options.php#authorization'; ?>" method="post">
+			<form action="<?php if ( !is_multisite() )echo 'options.php#authorization'; ?>" method="post">
    				<?php settings_fields('ADI-auth-settings'); ?>
 				<table class="form-table">
 					<tbody>
@@ -392,7 +386,7 @@ if (!IS_WPMU) { ?>
 		<!-- TAB: Security -->			
 
 		<div id="security">
-			<form action="<?php if (!IS_WPMU)echo 'options.php#security'; ?>" method="post">
+			<form action="<?php if ( !is_multisite() )echo 'options.php#security'; ?>" method="post">
    				<?php settings_fields('ADI-security-settings'); ?>
 				<table class="form-table">
 					<tbody>
@@ -487,7 +481,7 @@ if (!IS_WPMU) { ?>
 				</table>
 			</div>
 			
-			<form action="<?php if (!IS_WPMU)echo 'options.php#usermeta'; ?>" method="post">
+			<form action="<?php if ( !is_multisite() )echo 'options.php#usermeta'; ?>" method="post">
    				<?php settings_fields('ADI-usermeta-settings'); ?>
 				<table class="form-table">
 					<tbody>
@@ -624,7 +618,7 @@ if (!IS_WPMU) { ?>
 		<!-- TAB: Bulk Import -->
 	
 		<div id="bulkimport">
-			<form action="<?php if (!IS_WPMU)echo 'options.php#bulkimport'; ?>" method="post">
+			<form action="<?php if ( !is_multisite() )echo 'options.php#bulkimport'; ?>" method="post">
    				<?php settings_fields('ADI-bulkimport-settings'); ?>
 				<table class="form-table">
 					<tbody>
@@ -714,7 +708,7 @@ if (!IS_WPMU) { ?>
 		<!-- TAB: Test -->
 		<div id="test">
 			<!-- <form onsubmit="return submitTestForm();"> -->
-			<form onsubmit="window.open('','Test','width=450,height=500,left=100,top=200')" action="<?php echo ( (IS_WPMU) ? WPMU_PLUGIN_URL : WP_PLUGIN_URL ).'/'.ADINTEGRATION_FOLDER;?>/test.php" method="post" target="Test">
+			<form onsubmit="window.open('','Test','width=450,height=500,left=100,top=200')" action="<?php echo plugins_url( 'test.php' , __FILE__ )?>" method="post" target="Test">
 				<table class="form-table">
 					<tbody>
 						<tr>
