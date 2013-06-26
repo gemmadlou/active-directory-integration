@@ -1442,7 +1442,7 @@ class ADIntegrationPlugin {
 	public static function activate() {
 		global $wpdb;
 		
-		$table_name = $wpdb->prefix . ADIntegrationPlugin::TABLE_NAME;
+		$table_name = $wpdb->base_prefix . ADIntegrationPlugin::TABLE_NAME;
 		
 		
 		// get current version and write version of plugin to options table
@@ -1506,7 +1506,7 @@ class ADIntegrationPlugin {
 	public static function deactivate() {
 		global $wpdb;
 		
-		$table_name = $wpdb->prefix . ADIntegrationPlugin::TABLE_NAME;
+		$table_name = $wpdb->base_prefix . ADIntegrationPlugin::TABLE_NAME;
 		
 		// drop table
 		$wpdb->query('DROP TABLE IF EXISTS '.$table_name);
@@ -2362,7 +2362,7 @@ class ADIntegrationPlugin {
 		global $wpdb;
 		
 		$this->_log(ADI_LOG_WARN,'storing failed login for user "'.$username.'"');
-		$table_name = $wpdb->prefix . ADIntegrationPlugin::TABLE_NAME;
+		$table_name = $wpdb->base_prefix . ADIntegrationPlugin::TABLE_NAME;
 		
 		$sql = "INSERT INTO $table_name (user_login, failed_login_time) VALUES ('" . $wpdb->escape($username)."'," . time() . ")";
 		$result = $wpdb->query($sql);
@@ -2379,7 +2379,7 @@ class ADIntegrationPlugin {
 	 */
 	protected function _get_failed_logins_within_block_time($username) {
 		global $wpdb;
-		$table_name = $wpdb->prefix . ADIntegrationPlugin::TABLE_NAME;
+		$table_name = $wpdb->base_prefix . ADIntegrationPlugin::TABLE_NAME;
 		$time = time() - (int)$this->_block_time;
 		
 		$sql = "SELECT count(*) AS count from $table_name WHERE user_login = '".$wpdb->escape($username)."' AND failed_login_time >= $time";
@@ -2398,7 +2398,7 @@ class ADIntegrationPlugin {
 		global $wpdb;
 		
 		$this->_log(ADI_LOG_NOTICE,'cleaning up failed logins for user "'.$username.'"');
-		$table_name = $wpdb->prefix . ADIntegrationPlugin::TABLE_NAME;
+		$table_name = $wpdb->base_prefix . ADIntegrationPlugin::TABLE_NAME;
 		$time = time() - $this->_block_time;
 		
 		$sql = "DELETE FROM $table_name WHERE failed_login_time < $time";
@@ -2419,7 +2419,7 @@ class ADIntegrationPlugin {
 	protected function _get_rest_of_blocking_time($username) {
 		global $wpdb;
 		
-		$table_name = $wpdb->prefix . ADIntegrationPlugin::TABLE_NAME;
+		$table_name = $wpdb->base_prefix . ADIntegrationPlugin::TABLE_NAME;
 		
 		$sql = "SELECT max(failed_login_time) FROM $table_name WHERE user_login = '".$wpdb->escape($username)."'";
 		$max_time = $wpdb->get_var($sql);
