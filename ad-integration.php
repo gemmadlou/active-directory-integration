@@ -305,7 +305,7 @@ class ADIntegrationPlugin {
 	 * Constructor
 	 */
 	public function __construct() {
-		global $wp_version, $wpdb, $wpmuBaseTablePrefix;
+		global $wp_version, $wpdb;
 		
 		// define folder constant
 		if (!defined('ADINTEGRATION_FOLDER')) {  
@@ -418,7 +418,7 @@ class ADIntegrationPlugin {
 	}
 	
 	
-	public function load_styles() {
+	public function load_styles() { 
 		wp_register_style('adintegration', plugins_url('css/adintegration.css', __FILE__ )  ,false, '1.7.1', 'screen');
 		wp_enqueue_style('adintegration');
 	}
@@ -635,20 +635,14 @@ class ADIntegrationPlugin {
 	 */
 	public function authenticate($user = NULL, $username = '', $password = '') {
 		
-		global $wp_version, $wpmu_version;
+		global $wp_version;
 		
-		$this->_log(ADI_LOG_INFO,'method authenticate() called');		
-		
-		if (IS_WPMU) {
-			$version = $wpmu_version;
-		} else {
-			$version = $wp_version;
-		}
+		$this->_log(ADI_LOG_INFO,'method authenticate() called');
 		
 		// log debug informations
 		$this->_log(ADI_LOG_INFO,"------------------------------------------\n".
 								 'PHP version: '.phpversion()."\n".
-								 'WP  version: '.$version."\n".
+								 'WP  version: '.$wp_version."\n".
 								 'ADI version: '.ADIntegrationPlugin::ADI_VERSION."\n". 
 								 'OS Info    : '.php_uname()."\n".
 								 'Web Server : '.php_sapi_name()."\n".
