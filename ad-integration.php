@@ -419,14 +419,20 @@ class ADIntegrationPlugin {
 	
 	
 	public function load_styles() { 
-		wp_register_style('adintegration', plugins_url('css/adintegration.css', __FILE__ )  ,false, '1.7.1', 'screen');
-		wp_enqueue_style('adintegration');
+		$screen = get_current_screen();
+		if ( $screen->id == 'settings_page_active-directory-integration' || $screen->id == 'settings_page_active-directory-integration-network' ) {
+			wp_register_style('adintegration', plugins_url('css/adintegration.css', __FILE__ )  ,false, '1.7.1', 'screen');
+			wp_enqueue_style('adintegration');
+		}
 	}
 	
 	
 	public function load_scripts() {
-		wp_enqueue_script('jquery-ui-tabs');   // this is a wp default script
-		wp_enqueue_script('jquery-ui-dialog'); // this is a wp default script
+		$screen = get_current_screen();
+		if ( $screen->id == 'settings_page_active-directory-integration' || $screen->id == 'settings_page_active-directory-integration-network' ) {
+			wp_enqueue_script('jquery-ui-tabs');   // this is a wp default script
+			wp_enqueue_script('jquery-ui-dialog'); // this is a wp default script
+		}
 	}
 	
 
