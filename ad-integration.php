@@ -2,11 +2,14 @@
 
 /*
 Plugin Name: Active Directory Integration 
-Version: 1.1.4
+Version: 1.2
 Plugin URI: http://www.steindorff.de/wp-ad-integration
 Description: Allows WordPress to authenticate, authorize, create and update users through Active Directory
 Author: Christoph Steindorff
 Author URI: http://www.steindorff.de/
+-Contributor: William Earnhardt
+-Contributor URI: http://twitter.com/earnjam
+-Contributor: Gemma Black, https://github.com/gemmadlou
 
 The work is derived from version 1.0.5 of the plugin Active Directory Authentication:
 OriginalPlugin URI: http://soc.qc.edu/jonathan/wordpress-ad-auth
@@ -27,9 +30,8 @@ OriginalAuthor URI: http://soc.qc.edu/jonathan
 	Lesser General Public License for more details.
 */
 
-
 if (!class_exists('ADIntegrationPlugin')) {
-	
+
 // LOG LEVEL	
 define('ADI_LOG_DEBUG', 6);
 define('ADI_LOG_INFO',  5);
@@ -245,7 +247,7 @@ class ADIntegrationPlugin {
 			array('name' => 'AD_Integration_use_tls', 'type' => 'bool'),
 			array('name' => 'AD_Integration_network_timeout', 'type' => 'integer'),
 			array('name' => 'AD_Integration_base_dn', 'type' => 'string'),
-			array('name' => 'AD_Integration_formatted_username_after_post', 'type' => 'string'),
+			array('name' => 'AD_Integration_username_domain_prefix', 'type' => 'string'),
 			
 			// User
 			array('name' => 'AD_Integration_account_suffix', 'type' => 'string'),
@@ -450,7 +452,7 @@ class ADIntegrationPlugin {
 				add_site_option('AD_Integration_port', '389');
 				add_site_option('AD_Integration_use_tls', false);
 				add_site_option('AD_Integration_network_timeout', 5);
-				add_site_option('AD_Integration_formatted_username_after_post', '');
+				add_site_option('AD_Integration_username_domain_prefix', '');
 				
 				// User
 				add_site_option('AD_Integration_authorize_by_group', false);
@@ -503,7 +505,7 @@ class ADIntegrationPlugin {
 				add_option('AD_Integration_port', '389');
 				add_option('AD_Integration_use_tls', false);
 				add_option('AD_Integration_network_timeout', 5);
-				add_site_option('AD_Integration_formatted_username_after_post', '');
+				add_site_option('AD_Integration_username_domain_prefix', '');
 				
 				add_option('AD_Integration_authorize_by_group', false);
 				add_option('AD_Integration_authorization_group', '');
@@ -559,7 +561,7 @@ class ADIntegrationPlugin {
 		register_setting('ADI-server-settings', 'AD_Integration_use_tls', array(&$this, 'sanitize_bool'));
 		register_setting('ADI-server-settings', 'AD_Integration_base_dn');
 		register_setting('ADI-server-settings', 'AD_Integration_network_timeout', array(&$this, 'sanitize_network_timeout'));
-		register_setting('ADI-server-settings', 'AD_Integration_formatted_username_after_post');
+		register_setting('ADI-server-settings', 'AD_Integration_username_domain_prefix');
 		
 		// User
 		register_setting('ADI-user-settings', 'AD_Integration_auto_create_user', array(&$this, 'sanitize_bool'));
@@ -665,11 +667,12 @@ class ADIntegrationPlugin {
 		$username = strtolower($username);
 		$password = stripslashes($password);
 
-		$username = $this->format_username_after_login($username);
+		//$username = $this->format_username_after_login($username); ///ggg
 		
 		// Don't use Active Directory for admin user (ID 1)
 		// $user = get_userdatabylogin($username); // deprecated 
 		$user = get_user_by('login', $username);
+		
 		
 		if (is_object($user) && ($user->ID == 1)) {
 			$this->_log(ADI_LOG_NOTICE,'User with ID 1 will never be authenticated by Active Directory Integration.');
@@ -780,7 +783,7 @@ class ADIntegrationPlugin {
 			$account_suffix = trim($account_suffix);
 			$this->_log(ADI_LOG_NOTICE,'trying account suffix "'.$account_suffix.'"');			
 			$this->_adldap->set_account_suffix($account_suffix);
-			if ( $this->_adldap->authenticate($username, $password) === true ) // Authenticate
+			if ( $this->_adldap->authenticate($this->add_domain_prefix($username), $password) === true ) // Authenticate
 			{	
 				$this->_log(ADI_LOG_NOTICE,'Authentication successfull for "' . $username . $account_suffix.'"');
 				$this->_authenticated = true;
@@ -1852,7 +1855,7 @@ class ADIntegrationPlugin {
 			$this->_use_tls 					= get_site_option('AD_Integration_use_tls');
 			$this->_network_timeout				= (int)get_site_option('AD_Integration_network_timeout');
 			$this->_base_dn						= get_site_option('AD_Integration_base_dn');
-			$this->_formatted_username_after_post						= get_site_option('AD_Integration_formatted_username_after_post');
+			$this->_username_domain_prefix						= get_site_option('AD_Integration_username_domain_prefix');
 
 			// User (13)
 			$this->_account_suffix		 		= get_site_option('AD_Integration_account_suffix');
@@ -1911,7 +1914,7 @@ class ADIntegrationPlugin {
 			$this->_use_tls 					= get_option('AD_Integration_use_tls');
 			$this->_network_timeout				= (int)get_option('AD_Integration_network_timeout');
 			$this->_base_dn						= get_option('AD_Integration_base_dn');
-			$this->_formatted_username_after_post						= get_site_option('AD_Integration_formatted_username_after_post');
+			$this->_username_domain_prefix						= get_site_option('AD_Integration_username_domain_prefix');
 
 			// User (13)
 			$this->_account_suffix		 		= get_option('AD_Integration_account_suffix');
@@ -2505,13 +2508,14 @@ class ADIntegrationPlugin {
 		if ( $info['mail'] == '' ) 
 		{
 		
-			$entered_username = $this->format_username_after_login($username, true);
+			///ggg
+			$entered_username = $this->add_domain_prefix($username, true);
 			
 			if (trim($this->_default_email_domain) != '') {
-				$email = $entered_username . '@' . $this->_default_email_domain;
+				$email = $username . '@' . $this->_default_email_domain;
 			} else {
-				if (strpos($entered_username, '@') !== false) {
-					$email = $entered_username;
+				if (strpos($username, '@') !== false) {
+					$email = $username;
 				}
 			}
 		}
@@ -3258,39 +3262,23 @@ class ADIntegrationPlugin {
 	
 	}
 	
+	
 	/**
-	 * Generate formatted username based on rules in Server settings page
+	 * Prefix Username with DomainName eg. MyDomain\username - so users won't have to
 	 * 
+	 * Why? - the problem occurred when the username credentials on their own don't work with the
+	 * the Active Directory without the use of the DomainName.
 	 * @param (String) $username
-	 * @param (String) $rules - String structure is '{valueToFind}###{valueToReplaceTheFindValue};'
 	 * @param (Boolean) $reverse - Reverse the rule structure - so it goes from back to the original - default = false
 	 */
-	
-	public function format_username_after_login($username, $reverse = false) {
-			if (isset($this->_formatted_username_after_post) && $this->_formatted_username_after_post !== '') {
-				$rules = $this->_formatted_username_after_post;
-			
-				$rulesArr = explode(';', $rules);
-				
-				foreach ($rulesArr as $rule) {
-					
-					if ($rule !== '') {
-						$ruleArr = explode('###', $rule);
-						if ($reverse) {
-							$from = $ruleArr[1];
-							$to = $ruleArr[0];
-						} else {
-							$from = $ruleArr[0];
-							$to = $ruleArr[1];
-						}
-						$username = str_replace($from, $to, $username);
-					}
-				}
-				return $username;
-			} else {
-				return $username;
-			}
+	public function add_domain_prefix($username, $reverse = false) {
+		if (isset($this->_username_domain_prefix) && $this->_username_domain_prefix !== '') {
+			if ($reverse) return str_replace( $this->_username_domain_prefix . '\\' , '', $username);
+			else return $this->_username_domain_prefix . '\\' . $username; 
+		} else {
+			return $username;
 		}
+	}
 
 } // END OF CLASS
 } // ENDIF

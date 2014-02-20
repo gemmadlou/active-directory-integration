@@ -165,11 +165,11 @@ if (!IS_WPMU) { ?>
 						</tr>
 						
 						<tr valign="top">
-							<th scope="row"><label for="AD_Integration_formatted_username_after_post"><?php _e('Formatted Username After Post', 'ad-integration'); ?></label></th>
+							<th scope="row"><label for="AD_Integration_username_domain_prefix"><?php _e('Username Domain Prefix', 'ad-integration'); ?></label></th>
 							<td>
-								<input type="text" name="AD_Integration_formatted_username_after_post" id="AD_Integration_formatted_username_after_post" class="regular-text" 
-								value="<?php echo (isset($this->_formatted_username_after_post)) ? $this->_formatted_username_after_post : ''; ?>" /><br />
-								<?php _e('Formatted Username After Post eg. If user enters <strong>gemma.black</strong> and you want to submit to lDAP <strong>gemma black</strong>, then enter format as <span style="color:steelblue;font-style:oblique;"><strong>.### ; </strong></span>', 'ad-integration'); ?>
+								<input type="text" name="AD_Integration_username_domain_prefix" id="AD_Integration_username_domain_prefix" class="regular-text" 
+								value="<?php echo (isset($this->_username_domain_prefix)) ? $this->_username_domain_prefix : ''; ?>" /><br />
+								<?php _e('When Active Directory requires domain prefix eg <span style="font-weight:bold;color:green;">DomainName</span> to create user login "DomainName\username".', 'ad-integration'); ?>
 							</td>
 						</tr>
 						
